@@ -16,7 +16,7 @@ var (
 	bot         *tgbotapi.BotAPI
 	config      Configuration
 	sw          swift.Connection
-	letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	letterRunes = []rune("abcdefghkmnopqrstuvwxyz0123456789")
 )
 
 func init() {
@@ -37,7 +37,7 @@ func init() {
 		UserName:    config.Swift.UserName,
 		ApiKey:      config.Swift.ApiKey,
 		AuthUrl:     config.Swift.AuthUrl,
-		AuthVersion: 1,
+		AuthVersion: config.Swift.AuthVersion,
 	}
 	err = c.Authenticate()
 	if err != nil {
@@ -89,9 +89,9 @@ func queryMsg(u *tgbotapi.Message) {
 		var msg string
 		if err != nil {
 			log.Printf("[Bot] File get error: %+v", err)
-			msg = "Ошибка обработки файла"
+			msg = "Internal service error :("
 		} else {
-			msg = SWUpload(tgfile)
+			msg = swUpload(tgfile)
 		}
 		message := tgbotapi.NewMessage(u.Chat.ID, msg)
 		if _, err := bot.Send(message); err != nil {
@@ -108,9 +108,9 @@ func queryMsg(u *tgbotapi.Message) {
 		var msg string
 		if err != nil {
 			log.Printf("[Bot] Audio get error: %+v", err)
-			msg = "Ошибка обработки файла"
+			msg = "Internal service error :("
 		} else {
-			msg = SWUpload(tgfile)
+			msg = swUpload(tgfile)
 		}
 		message := tgbotapi.NewMessage(u.Chat.ID, msg)
 		if _, err := bot.Send(message); err != nil {
@@ -119,21 +119,21 @@ func queryMsg(u *tgbotapi.Message) {
 	}
 }
 
-func SWUpload(url string) string {
+func swUpload(url string) string {
 	var msg string
 	resp, err := http.Get(url)
 	defer resp.Body.Close()
 	if err != nil {
 		log.Printf("[HTTP] Download error: %+v", err)
-		msg = "Service error"
+		msg = "Internal service error :("
 	} else {
 		filebyte, err := ioutil.ReadAll(resp.Body)
 		var extension = filepath.Ext(url)
-		pathonswift := RandStringRunes(8) + extension
+		pathonswift := randStringRunes(8) + extension
 		err = sw.ObjectPutBytes(config.Swift.Container, config.Swift.PathToFile+pathonswift, filebyte, "")
 		if err != nil {
 			log.Printf("[Swift] Upload error: %+v", err)
-			msg = "Service error"
+			msg = "Internal service error :("
 		} else {
 			msg = config.Swift.FrontendUrl + pathonswift
 		}
@@ -141,7 +141,7 @@ func SWUpload(url string) string {
 	return msg
 }
 
-func RandStringRunes(n int) string {
+func randStringRunes(n int) string {
 	rand.Seed(time.Now().UnixNano())
 	b := make([]rune, n)
 	for i := range b {

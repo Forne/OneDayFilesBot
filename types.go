@@ -22,6 +22,7 @@ type Swift struct {
 	UserName    string
 	ApiKey      string
 	AuthUrl     string
+	AuthVersion int
 	FrontendUrl string
 	Container   string
 	PathToFile  string
