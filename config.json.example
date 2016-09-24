@@ -1,0 +1,18 @@
+{
+	"telegram": {
+		"token": "1:AAAAAAAAAAAAAAAAAAAAAA",
+		"webhook": {
+			"set": "https://webhook.example.com/",
+			"listen": "/",
+			"serve": "0.0.0.0:8080"
+		}
+	},
+	"swift": {
+		"username": "username",
+		"apikey": "key",
+		"authurl": "https://auth.selcdn.ru/",
+		"container": "odf",
+		"pathtofile": "odf/",
+		"frontendurl": "http://download.example.com/"
+	}
+}
